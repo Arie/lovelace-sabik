@@ -86,9 +86,9 @@ class SabikCard extends LitElement {
 
   getSummerModeTmpl(){
     if(this.hass.states['binary_sensor.sabik_summer_mode'].state == 'off'){
-      return html`<ha-icon icon="mdi:weather-sunny"></ha-icon>`;
-    }else{
       return html`<ha-icon class="inactive" icon="mdi:weather-sunny"></ha-icon>`;
+    }else{
+      return html`<ha-icon icon="mdi:weather-sunny"></ha-icon>`;
     }
   }
 
