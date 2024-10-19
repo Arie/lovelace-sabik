@@ -171,7 +171,7 @@ class SabikCard extends LitElement {
     }
 
     .warning {
-      color: color: #d80707db;
+      color: #d80707db;
     }
 
   @keyframes spin {
