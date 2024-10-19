@@ -56,7 +56,7 @@ class SabikCard extends LitElement {
     if(this.hass.states['binary_sensor.sabik_extract_fan_alarm'].state == 'off'){
       return html`<ha-icon icon="mdi:fan"></ha-icon>`;
     }else{
-      return html`<ha-icon class="inactive" icon="mdi:fan"></ha-icon>`;
+      return html`<ha-icon class="warning" icon="mdi:fan"></ha-icon>`;
     }
   }
 
