@@ -115,8 +115,7 @@ class SabikCard extends LitElement {
                   <div class="fan-state"><ha-icon icon="mdi:speedometer"></ha-icon> ${Math.trunc(this.hass.states['sensor.sabik_rpm_extract_motor'].state)} rpm</div>
               </div>
               <div class="flex-col-main">
-                  <div>${this.hass.states['sensor.itho_wpu_current_room_temp'].state}°C</div>
-                  <div>
+                 <div>
                     <ha-icon
                       class="${currentMode !== '4' ? 'spin' : ''} clickable ${this.loadingStates.fan ? 'loading' : ''}"
                       @click=${this.handleFanClick}
