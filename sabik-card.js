@@ -10,13 +10,33 @@ class SabikCard extends LitElement {
     return {
       hass: {},
       config: {},
-      loadingStates: { type: Object }
+      loadingStates: { type: Object },
+      fanMenuOpen: { type: Boolean }
     };
   }
 
   constructor() {
     super();
     this.loadingStates = {};
+    this.fanMenuOpen = false;
+    this._onDocumentClick = this._onDocumentClick.bind(this);
+  }
+
+  connectedCallback() {
+    super.connectedCallback();
+    document.addEventListener('click', this._onDocumentClick);
+  }
+
+  disconnectedCallback() {
+    document.removeEventListener('click', this._onDocumentClick);
+    super.disconnectedCallback();
+  }
+
+  // Close the fan menu when clicking anywhere outside of it
+  _onDocumentClick() {
+    if (this.fanMenuOpen) {
+      this.fanMenuOpen = false;
+    }
   }
 
   // Helper method to show loading state
@@ -37,16 +57,16 @@ class SabikCard extends LitElement {
   }
 
   // Add click handlers for controls
-  handleFanClick() {
+  handleFanClick(e) {
+    // Keep the click from reaching the document listener that closes the menu
+    e.stopPropagation();
+    this.fanMenuOpen = !this.fanMenuOpen;
+  }
+
+  handleFanSelect(e, mode) {
+    e.stopPropagation();
+    this.fanMenuOpen = false;
     this.setLoading('fan');
-    const currentMode = this.hass.states['sensor.sabik_selected_air_volume'].state;
-    const nextMode = {
-      '0': '1',  // low -> medium
-      '1': '2',  // medium -> high
-      '2': '3',  // high -> auto
-      '3': '0',  // auto -> low
-      '4': '0'   // if in snooze, start at low
-    }[currentMode] || '0';  // default to low
 
     const fanModeMap = {
       '0': 'low',
@@ -57,7 +77,7 @@ class SabikCard extends LitElement {
 
     this.hass.callService('mqtt', 'publish', {
       topic: 'homeassistant/climate/sabik/fan_mode/set',
-      payload: fanModeMap[nextMode]
+      payload: fanModeMap[mode]
     });
   }
 
@@ -117,17 +137,20 @@ class SabikCard extends LitElement {
               <div class="flex-col-main">
                   <div>${this.hass.states['sensor.itho_wpu_current_room_temp'].state}°C</div>
                   <div>
-                    <ha-icon
-                      class="${currentMode !== '4' ? 'spin' : ''} clickable ${this.loadingStates.fan ? 'loading' : ''}"
-                      @click=${this.handleFanClick}
-                      icon="mdi:${({
-                        '3': 'fan-auto',
-                        '4': 'fan-off',
-                        '0': 'fan-speed-1',
-                        '1': 'fan-speed-2',
-                        '2': 'fan-speed-3'
-                      }[currentMode])}">
-                    </ha-icon>
+                    <span class="fan-picker">
+                      <ha-icon
+                        class="clickable ${this.loadingStates.fan ? 'loading' : ''}"
+                        @click=${this.handleFanClick}
+                        icon="mdi:${({
+                          '3': 'fan-auto',
+                          '4': 'fan-off',
+                          '0': 'fan-speed-1',
+                          '1': 'fan-speed-2',
+                          '2': 'fan-speed-3'
+                        }[currentMode])}">
+                      </ha-icon>
+                      ${this.getFanMenuTmpl(currentMode)}
+                    </span>
                     <ha-icon
                       class="${({'off': 'inactive', 'on': 'active'}[this.hass.states['binary_sensor.sabik_boost_status'].state])} clickable ${this.loadingStates.boost ? 'loading' : ''}"
                       @click=${this.handleBoostClick}
@@ -153,6 +176,29 @@ class SabikCard extends LitElement {
       </div>
     </ha-card>
     `;
+  }
+
+  getFanMenuTmpl(currentMode){
+    if (!this.fanMenuOpen) {
+      return html``;
+    }
+
+    const options = [
+      { mode: '0', icon: 'fan-speed-1' },  // low
+      { mode: '1', icon: 'fan-speed-2' },  // medium
+      { mode: '2', icon: 'fan-speed-3' },  // high
+      { mode: '3', icon: 'fan-auto' }      // auto
+    ];
+
+    return html`
+      <span class="fan-menu" @click=${(e) => e.stopPropagation()}>
+        ${options.map((o) => html`
+          <ha-icon
+            class="clickable ${currentMode === o.mode ? 'active' : ''}"
+            @click=${(e) => this.handleFanSelect(e, o.mode)}
+            icon="mdi:${o.icon}">
+          </ha-icon>`)}
+      </span>`;
   }
 
   getFanTmpl(){
@@ -311,13 +357,32 @@ class SabikCard extends LitElement {
     .fan-state {
       padding-top: 15px;
     }
-    .spin {
-      animation-name: spin;
-      animation-duration: 2000ms;
-      animation-iteration-count: infinite;
-      animation-timing-function: linear;
+    .fan-picker {
+      position: relative;
+      display: inline-block;
     }
-
+    .fan-menu {
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      margin-top: 6px;
+      display: flex;
+      gap: 10px;
+      padding: 8px 12px;
+      background-color: rgba(0, 0, 0, 0.9);
+      border-radius: 6px;
+      z-index: 2;
+    }
+    .fan-menu ha-icon {
+      opacity: 0.7;
+    }
+    .fan-menu ha-icon:hover {
+      opacity: 1;
+    }
+    .fan-menu ha-icon.active {
+      opacity: 1;
+    }
     .info-row {
       background: rgba(0,0,0,0.2);
       margin-top: 10px;
@@ -360,15 +425,6 @@ class SabikCard extends LitElement {
 
     .loading {
       animation: pulse 1s infinite;
-    }
-
-  @keyframes spin {
-      from {
-          transform:rotate(0deg);
-      }
-      to {
-          transform:rotate(360deg);
-      }
     }
 
     .alarm {
