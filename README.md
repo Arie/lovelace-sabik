@@ -17,7 +17,7 @@ There are two ways to install this card:
 6. Restart Home Assistant
 
 ## Manual Installation
-1. Download the `sabik-card.js` and `sabik_heat.png` file from this repository
+1. Download the `sabik-card.js` file from this repository (it is fully self-contained — the background image and Lit are bundled in)
 2. Copy it to your `config/www/lovelace-sabik/` folder
 3. Add the following to your Lovelace resources:
 ```yaml
