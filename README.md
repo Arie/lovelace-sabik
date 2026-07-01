@@ -2,6 +2,8 @@
 
 ![Image](https://raw.githubusercontent.com/Arie/lovelace-sabik/master/result.png)
 
+[![Install with HACS](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=Arie&repository=lovelace-sabik)
+
 # Installation
 
 There are two ways to install this card:
