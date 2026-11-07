@@ -1,5 +1,10 @@
 # Homeassistant Lovelace Sabik card
 
+> [!IMPORTANT]
+> **This project is archived.** The Sabik card now ships inside **[Sabik for Home Assistant](https://github.com/Arie/ha-integration-sabik)**, a native integration that registers the card itself: no separate HACS frontend install, no Lovelace resource, and no hardcoded entity IDs.
+>
+> If you have this card installed: uninstall **Sabik Card** from HACS, delete any leftover `sabik-card.js` dashboard resource, and follow [Migrating from the MQTT bridge](https://github.com/Arie/ha-integration-sabik#migrating-from-the-mqtt-bridge). Existing `type: custom:sabik-card` cards keep working.
+
 ![Image](https://raw.githubusercontent.com/Arie/lovelace-sabik/master/result.png)
 
 [![Install with HACS](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=Arie&repository=lovelace-sabik)
